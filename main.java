@@ -1,19 +1,16 @@
-import org.ccil.cowan.tagsoup.Parser;
-import org.xml.sax.XMLReader;
-import org.xml.sax.InputSource;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.net.HttpURLConnection;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import org.xml.sax.helpers.DefaultHandler;
+import org.ccil.cowan.tagsoup.Parser;
 import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-
 
 class Main extends DefaultHandler{
     private boolean inForm;
