@@ -1,40 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent" 
-    android:layout_height="fill_parent" 
-    android:orientation="vertical" 
-    android:background="@drawable/wireless"
-    android:gravity="center_vertical"
-    android:adjustViewBounds="true">
- <!--   <ImageView android:src="@drawable/wireless_zone"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" /> -->
-    <EditText android:id="@+id/username"
-        android:maxLines="1"
-        android:hint="UTORid" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"
-        />
-    <EditText android:id="@+id/password"
-        android:maxLines="1"
-        android:hint="Password" 
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"
-        android:password="true" 
-        />
-     <LinearLayout android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal">
-        <Button android:id="@+id/connect"
-            android:layout_weight="1.0"
-            android:layout_width="wrap_content"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#0b0a0a" >
+    <ImageView 
+            android:gravity="top"
+            android:src="@drawable/wireless"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/connect" />
-        <CheckBox android:id="@+id/remember"
-            android:layout_width="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"/>
+    <LinearLayout 
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent" 
+        android:orientation="vertical" 
+        android:adjustViewBounds="true"
+        android:paddingTop="20sp">
+        <EditText android:id="@+id/username"
+            android:maxLines="1"
+            android:hint="UTORid" 
+            android:layout_width="fill_parent" 
             android:layout_height="wrap_content"
-            android:text="@string/remember_pass" />
-      </LinearLayout>
-            
-</LinearLayout>
+            />
+        <EditText android:id="@+id/password"
+            android:maxLines="1"
+            android:hint="Password" 
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:password="true" 
+            />
+         <LinearLayout android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal">
+            <Button android:id="@+id/connect"
+                android:layout_weight="1.0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/connect" />
+            <CheckBox android:id="@+id/remember"
+                android:shadowColor="#000"
+                android:shadowRadius="4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/remember_pass" />
+          </LinearLayout>
+                
+    </LinearLayout>
+</FrameLayout>
 
