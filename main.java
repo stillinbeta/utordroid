@@ -1,4 +1,7 @@
-import java.io.OutputStream;
+package com.stillinbeta.utordroid;
+
+import java.io.OutputStream;i
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,36 +28,19 @@ class Main extends DefaultHandler{
         this.fields = new HashMap<String,String>();
     }
 
-    public static void main(String[] args){
+    public static void login(String username, String password) throws MalFormedURLException, IOException, SAXException{
 
         //Follow the redirect to the login URL
         URL url;
-        try {
-            url = new URL("http://login.wireless.utoronto.ca");
-        }
-        catch (MalformedURLException e) {
-            System.out.println("Malformed URL");
-            return;
-        }
+        url = new URL("http://login.wireless.utoronto.ca");
+        
         String newURL;  
-        try {
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            conn.connect();
-            newURL = conn.getHeaderField("Location");
-        }
-        catch (Exception e) {
-            System.out.println("Couldn't Retrieve Redirect URL");
-            return; 
-        }
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.connect();
+        newURL = conn.getHeaderField("Location");
         
         // We have the URL, scrape the form data
-        try {
-            url = new URL(newURL);
-        }
-        catch (MalformedURLException e) {
-            System.out.println("Malformed URL");
-            return;
-        }
+        url = new URL(newURL);
 
         Main handler = new Main();
         XMLReader xr = new Parser();
@@ -78,30 +64,16 @@ class Main extends DefaultHandler{
             }
         }
         catch (Exception e) {
-            System.out.println("Failed to encode Response!");
+            throw new IOException();
         }
 
         // Send the response
-        try {
-            url = new URL("https://connect.utoronto.ca/authen/index.php");
-        }
-        catch (MalformedURLException e) {
-            System.out.println("Malformed URL");
-            return;
-        }
-        
-        try {
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            OutputStream os = conn.getOutputStream();
-            os.write ( payload.getBytes() );
-
-            System.out.println(conn.getResponseCode());
-        }
-        catch (Exception e) {
-            System.out.println("Something went wrong..."+e.toString());
-        }
+        url = new URL("https://connect.utoronto.ca/authen/index.php");
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        OutputStream os = conn.getOutputStream();
+        os.write ( payload.getBytes() );
     }
 
     public void addField(String k, String v) {

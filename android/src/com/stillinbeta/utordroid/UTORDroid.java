@@ -17,7 +17,7 @@ import com.stillinbeta.utordroid.Login;
 
 public class UTORDroid extends Activity
 {
-
+/*
     private OnClickListener connectListener = new OnClickListener() {
         public void onClick(View v) {
             Context context = getApplicationContext();
@@ -64,7 +64,7 @@ public class UTORDroid extends Activity
             toast.show();
         }
     };
-    
+  */  
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -78,7 +78,7 @@ public class UTORDroid extends Activity
         CheckBox savePassword = (CheckBox)findViewById(R.id.remember);
 
         //Setup Event Handlers
-        connect.setOnClickListener(connectListener);
+        connect.setOnClickListener(new Login(getApplicationContext()));
 
         // Restore saved preferences        
         SharedPreferences settings = getPreferences(MODE_PRIVATE);

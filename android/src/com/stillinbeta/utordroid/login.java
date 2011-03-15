@@ -2,7 +2,7 @@ package com.stillinbeta.utordroid;
 
 import java.io.OutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
+import javax.net.ssl.HttpsURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -14,62 +14,106 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-import org.xml.sax.SAXException;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
+import android.content.Context;
+import android.view.View;
+import android.util.Log;
 
-class Login extends DefaultHandler{
+class Login extends DefaultHandler implements OnClickListener{
     private boolean inForm;
     private boolean formParsed;
     private HashMap<String,String> fields;
+    private Context context;
 
-    public Login() {
+    private final static String LOGIN_URL = "http://login.wireless.utoronto.ca";
+    private final static String POST_URL = "https://connect.utoronto.ca/authen/index.php";
+    private final static String TAG = "UTorDroid";
+
+    private static String username = "frosteli";
+    
+    public Login(Context context) {
         this.inForm = false;
         this.formParsed = false;
         this.fields = new HashMap<String,String>();
+        this.context = context;
     }
 
-    public static void login(String username, String password) throws MalformedURLException, IOException, SAXException{
-
+    public void onClick(View v){
+        int duration = Toast.LENGTH_LONG;
+        
         //Follow the redirect to the login URL
-        URL url;
-        url = new URL("http://login.wireless.utoronto.ca");
         
+        HttpsURLConnection conn;
         String newURL;  
-        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-        conn.connect();
-        newURL = conn.getHeaderField("Location");
-        conn.disconnect();
-        
+        try {
+            conn = new HttpsURLConnection(LOGIN_URL);
+            conn.connect();
+            newURL = conn.getHeaderField("Location");
+            Log.d(TAG,"" + newURL);
+        }
+        /* IOException or MalformedURLException */
+        catch (MalformedURLException e) {
+            Log.e(TAG,"Malformed URL!");
+            return;
+        }
+        catch (IOException e) {
+   /*         Toast toast = Toast.makeText(context,"retrieval:" + e.toString(),duration);
+            toast.show(); */
+            Log.e(TAG,"Error in redirect retrieval");
+            return;
+        }
+
         // We have the URL, scrape the form data
-        url = new URL(newURL);
+        try {
+            url = new URL(newURL);
+        }
+        catch (MalformedURLException e) {
+           /* Toast toast = Toast.makeText(context,conn.getHeaderFields().toString(),duration);
+            toast.show();
+            return; */
+            Log.e(TAG,conn.getHeaderFields().toString());
+        }
 
-        Login handler = new Login();
         XMLReader xr = new Parser();
-        xr.setContentHandler(handler);
-        xr.setErrorHandler(handler);    
+        xr.setContentHandler(this);
+        xr.setErrorHandler(this);    
 
-        xr.parse(new InputSource(url.openStream()));
-        
+        try {
+            xr.parse(new InputSource(url.openStream()));
+        }
+        catch (Exception e) {
+            Log.e(TAG,"Error parsing!",e);
+        }
         // Process the form data, add our fields.        
-        handler.addField("username",username);
-        handler.addField("password",new Scanner(System.in).next());
+        this.addField("username",username);
+        this.addField("password",new Scanner(System.in).next());
         String payload = "";
         try {
-            for (Map.Entry<String,String> e : handler.getFields().entrySet()) {
+            for (Map.Entry<String,String> e : this.getFields().entrySet()) {
                payload +=  URLEncoder.encode(e.getKey(),"UTF-8")
                     + "=" + URLEncoder.encode(e.getValue(), "UTF-8") + "&";
             }
         }
         catch (Exception e) {
-            throw new IOException();
+            Toast toast = Toast.makeText(context,e.toString(),duration);
+            toast.show();
+            return;
         }
-
         // Send the response
-        url = new URL("https://connect.utoronto.ca/authen/index.php");
-        conn = (HttpURLConnection)url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
-        OutputStream os = conn.getOutputStream();
-        os.write ( payload.getBytes() );
+        try {
+            url = new URL();
+            conn = new HttpsURLConnection(POST_URL);
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            OutputStream os = conn.getOutputStream();
+            os.write ( payload.getBytes() );
+        }
+        catch (Exception e) {
+            Toast toast = Toast.makeText(context,e.toString(),duration);
+            toast.show();
+            return;
+        }
     }
 
     public void addField(String k, String v) {
