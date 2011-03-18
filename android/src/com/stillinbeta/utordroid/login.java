@@ -27,10 +27,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.InputStream;
 
 class Login extends DefaultHandler {
-    private boolean inForm;
-    private boolean formParsed;
     private HashMap<String,String> fields;
     private String username;
     private String password;
@@ -39,20 +38,18 @@ class Login extends DefaultHandler {
     private final static String POST_URL = "https://connect.utoronto.ca/authen/index.php";
     private final static String TAG = "UTorDroid";
     private final static String ENCODING = "UTF-8";
-
-    
-    public Login(String username, String password) {
-        this.inForm = false;
-        this.formParsed = false;
-        this.fields = new HashMap<String,String>();
-        this.username = username;
-        this.password = password;
-    }
+    private final static String USER_AGENT = "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.15) Gecko/20110304 Firefox/3.6.15";
 
     public class LoginException extends Exception {
         public LoginException(String s) {
             super(s);
         }
+    }
+
+    public Login(String username, String password) {
+        this.fields = new HashMap<String,String>();
+        this.username = username;
+        this.password = password;
     }
 
     public void login() throws LoginException {
@@ -61,9 +58,12 @@ class Login extends DefaultHandler {
         String redirect;
         AndroidHttpClient client;
         try {
-            client = AndroidHttpClient.newInstance("Android");
+            client = AndroidHttpClient.newInstance(USER_AGENT);
             HttpUriRequest request = new HttpGet(LOGIN_URL);
-            redirect = client.execute(request).getFirstHeader("Location").getValue();
+            request.setHeader("Cache-control","no-cache");
+            HttpResponse response = client.execute(request);
+            Log.i(TAG,"Redirect page retrieved");
+            redirect = response.getFirstHeader("Location").getValue();
         }
         catch (Exception e) {
             Log.e(TAG,"Error retrieving redirect",e);
@@ -75,6 +75,7 @@ class Login extends DefaultHandler {
         HttpEntity entity;
         try {
            HttpUriRequest request = new HttpGet(redirect);
+           request.setHeader("Cache-control","no-cache");
            entity = client.execute(request).getEntity(); 
         }
         catch (Exception e) {
@@ -85,8 +86,9 @@ class Login extends DefaultHandler {
     
         // Parse Login Page 
         XMLReader xr = new Parser();
-        xr.setContentHandler(this);
-        xr.setErrorHandler(this);   
+        SaxParseForm spf = new SaxParseForm();
+        xr.setContentHandler(spf);
+        xr.setErrorHandler(spf);   
 
         try {
             xr.parse(new InputSource(entity.getContent()));
@@ -99,14 +101,14 @@ class Login extends DefaultHandler {
         Log.i(TAG,fields.toString());
 
         // Check if we're already logged in
-        if (fields.get("state").equals("modify")) {
+        if (fields.get("state") != null && fields.get("state").equals("modify")) {
             Log.e(TAG,"Already logged in");
             throw new LoginException("Already Logged In");
         }
 
         // Process the form data, add our fields.        
-        this.addField("username",username);
-        this.addField("password",password);
+        fields.put("username",username);
+        fields.put("password",password);
         
         // Convert the Hashmap to a List of NameValuePairs 
         ArrayList<BasicNameValuePair> nameValPairs = new ArrayList<BasicNameValuePair>();
@@ -137,9 +139,44 @@ class Login extends DefaultHandler {
             throw new LoginException("Error Sending Login Information");
         }
         Log.d(TAG,"Login information posted successfully");
+        try {
+            readInputStream(entity.getContent());
+        } 
+        catch (Exception e) {};
+    } 
 
-/*        try {
-            BufferedReader r = new BufferedReader(new InputStreamReader(entity.getContent()));
+    private class SaxParseForm extends DefaultHandler{
+        private boolean inForm;
+        private boolean formParsed;
+        
+        public SaxParseForm() {
+            this.inForm = false;
+            this.formParsed = false;
+        }
+
+        public void startElement (String uri, String name,
+                          String qName, Attributes atts) {
+            if (!this.formParsed && name.compareTo("form") == 0) {
+                this.inForm = true;
+            }
+            if ( this.inForm && name.compareTo("input") == 0 &&
+                atts.getValue("type").compareTo("hidden") == 0 ) {
+                fields.put(atts.getValue("name"),atts.getValue("value"));
+            }
+        }
+
+        public void endElement (String uri, String name, String qName) {
+            if (name.compareTo("form") == 0) {
+                this.inForm = false;
+                this.formParsed = true;
+            }
+        }
+    }
+
+    // Very useful for debugging
+    public static void readInputStream(InputStream stream) {
+        try {
+            BufferedReader r = new BufferedReader(new InputStreamReader(stream));
             String x = r.readLine();
             while(x != null) {
                 Log.d(TAG,x);
@@ -147,34 +184,9 @@ class Login extends DefaultHandler {
             }
         }
         catch (Exception e) {
-           Log.e(TAG,"Error",e);
-        } */
-
-    } 
-
-    public void addField(String k, String v) {
-        this.fields.put(k,v);
-    }
-
-    public HashMap<String,String> getFields() {
-        return this.fields;
-    }
-
-    public void startElement (String uri, String name,
-                      String qName, Attributes atts) {
-        if (!this.formParsed && name.compareTo("form") == 0) {
-            this.inForm = true;
-        }
-        if ( this.inForm && name.compareTo("input") == 0 &&
-            atts.getValue("type").compareTo("hidden") == 0 ) {
-            fields.put(atts.getValue("name"),atts.getValue("value"));
+           Log.e(TAG,"Error reading stream",e);
         }
     }
 
-    public void endElement (String uri, String name, String qName) {
-        if (name.compareTo("form") == 0) {
-            this.inForm = false;
-            this.formParsed = true;
-        }
-    }
+        
 }
