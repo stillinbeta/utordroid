@@ -1,6 +1,7 @@
 package com.stillinbeta.utordroid;
 
 import android.util.Log;
+import android.content.Context;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -26,6 +27,7 @@ class Login {
     private HashMap<String,String> fields;
     private String username;
     private String password;
+    private Context context;
 
     private final static String LOGIN_URL 
         = "http://login.wireless.utoronto.ca";
@@ -47,10 +49,11 @@ class Login {
      @param username UTORid
      @param username UTORid password
      */
-    public Login(String username, String password) {
+    public Login(String username, String password, Context context) {
         this.fields = new HashMap<String,String>();
         this.username = username;
         this.password = password;
+        this.context = context;
     }
     
     /**
@@ -72,7 +75,8 @@ class Login {
         catch (Exception e) {
             client.close();
             Log.e(TAG,"Error retrieving redirect",e);
-            throw new LoginException("Connection Error");
+            throw new LoginException(
+                context.getString(R.string.login_error_connect));
         }
         Log.d(TAG, "Redirect URL: "+redirect);
    
@@ -86,7 +90,8 @@ class Login {
         catch (Exception e) {
             client.close();
             Log.e(TAG,"Error retriveing login page",e);
-            throw new LoginException("Connection Error");
+            throw new LoginException(
+                context.getString(R.string.login_error_connect));
         }
         Log.d(TAG,"Retrieved login page");
     
@@ -102,7 +107,8 @@ class Login {
         catch (Exception e) {
             client.close();
             Log.e(TAG,"Error parsing!",e);
-            throw new LoginException("Could not Parse Login Page");
+            throw new LoginException(
+                context.getString(R.string.login_error_parse));
         }
         Log.d(TAG,"Finished parsing file");
         Log.i(TAG,fields.toString());
@@ -112,7 +118,8 @@ class Login {
                 fields.get("state").equals("modify")) {
             client.close();
             Log.e(TAG,"Already logged in");
-            throw new LoginException("Already Logged In");
+            throw new LoginException(
+                context.getString(R.string.login_error_logged_in));
         }
 
         // Process the form data, add our fields.        
@@ -132,7 +139,8 @@ class Login {
         catch (Exception e) {
             client.close();
             Log.e(TAG,"Problem encoding",e);
-            throw new LoginException("Error Sending Login Information"); 
+            throw new LoginException(
+                context.getString(R.string.login_error_parse));
         } 
         Log.d(TAG,"Prepared response");
         Log.i(TAG,nameValPairs.toString());
@@ -147,7 +155,8 @@ class Login {
         catch (Exception e) {
             client.close();
             Log.e(TAG,"Problem transmitting login data",e);
-            throw new LoginException("Error Sending Login Information");
+            throw new LoginException(
+                context.getString(R.string.login_error_connect));
         }
         SaxParseResponse spr = new SaxParseResponse();
         xr.setContentHandler(spr);
@@ -159,7 +168,8 @@ class Login {
         catch (Exception e) {
             client.close();
             Log.e(TAG,"Could not parse response page",e);
-            throw new LoginException("Could not understand response!");
+            throw new LoginException(
+                context.getString(R.string.login_error_parse));
         }
         Log.d(TAG,"Response parsed.");
         

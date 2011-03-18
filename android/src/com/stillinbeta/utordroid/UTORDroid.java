@@ -48,7 +48,7 @@ public class UTORDroid extends Activity {
          @return true on success, false on failure
          */
         protected Boolean doInBackground(String... params) {
-            Login login = new Login(params[0], params[1]);
+            Login login = new Login(params[0], params[1],UTORDroid.this);
             try {
                 return login.login();
             }
@@ -120,17 +120,16 @@ public class UTORDroid extends Activity {
         usernameField.setText(username);
         // Only set password if we have a recalled password
         if (password.compareTo("") != 0) {
-            passwordField.setText(username);
+            passwordField.setText(password);
             savePassword.setChecked(true);
         }
         
     }
     /**
-     * Called on application pause.
      * Saves user data and clears password if need be.
+     * In seperate function to be called by both onStop and onPause
      */
-    public void onPause() {
-        super.onStop();
+    public void saveUserData() {
 
         // Acquire Fields
         EditText usernameField = (EditText)findViewById(R.id.username);
@@ -154,4 +153,15 @@ public class UTORDroid extends Activity {
         //Save changes and we're done
         editor.commit();
     }
+
+    public void onPause() {
+        super.onPause();
+        saveUserData();
+    }
+
+    public void onStop() {
+        super.onStop();
+        saveUserData();
+    }
+
 }

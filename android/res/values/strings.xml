@@ -6,4 +6,7 @@
     <string name="login_failure">Wrong username or password!</string>
     <string name="login_success">Successfully Logged in!</string>
     <string name="working">Working...</string>
+    <string name="login_error_connect">Connection Error</string>
+    <string name="login_error_parse">Parse Error</string>
+    <string name="login_error_logged_in">Already logged in</string>
 </resources>
