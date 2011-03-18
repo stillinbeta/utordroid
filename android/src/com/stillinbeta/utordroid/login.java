@@ -139,7 +139,7 @@ class Login extends DefaultHandler {
         }
         Log.d(TAG,"Login information posted successfully");
 
-        try {
+/*        try {
             BufferedReader r = new BufferedReader(new InputStreamReader(entity.getContent()));
             String x = r.readLine();
             while(x != null) {
@@ -149,7 +149,7 @@ class Login extends DefaultHandler {
         }
         catch (Exception e) {
            Log.e(TAG,"Error",e);
-        }
+        } */
     } 
 
     public void addField(String k, String v) {
