@@ -10,61 +10,57 @@ import android.widget.Toast;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import org.xml.sax.SAXException;
 import com.stillinbeta.utordroid.Login;
+import com.stillinbeta.utordroid.Login.LoginException;
 
 public class UTORDroid extends Activity
 {
-/*
+
     private OnClickListener connectListener = new OnClickListener() {
         public void onClick(View v) {
             Context context = getApplicationContext();
             int duration = Toast.LENGTH_SHORT;
-
-            
             EditText usernameField = (EditText)findViewById(R.id.username);
             EditText passwordField = (EditText)findViewById(R.id.password);
 
             String username = usernameField.getText().toString();
             String password = passwordField.getText().toString();
 
-            if (username.length() == 0 || password.length() == 0) {
-                CharSequence error = "You forgot something!";
-                Toast toast = Toast.makeText(context,error,duration);
-                toast.show();
-                return;
-            }
+            new LoginTask().execute(username,password);
 
-            try {
-                    Login.login(usernameField.getText().toString(),
-                    passwordField.getText().toString());
-            }
-            catch (MalformedURLException e) {
-                CharSequence error = "Could not connect!"+e.toString();
-                Toast toast = Toast.makeText(context,error,duration);
-                toast.show();
-                return;
-            }
-            catch (IOException e) {
-                CharSequence error = "Error Connecting!"+e.toString();
-                Toast toast = Toast.makeText(context,error,duration);
-                toast.show();
-                return;
-            }
-            catch (SAXException e) {
-                CharSequence error = "Error parsing respone!"+e.toString();
-                Toast toast = Toast.makeText(context,error,duration);
-                toast.show();
-                return;
-            }
-            CharSequence success = "Connected to UTORWin!";
-            Toast toast = Toast.makeText(context,success,duration);
-            toast.show();
         }
-    };
-  */  
+    }; 
+    
+    private class LoginTask extends AsyncTask<String, Void, Boolean> {
+
+        private LoginException exception;
+
+        protected Boolean doInBackground(String... params) {
+            Login login = new Login(params[0], params[1]);
+            try {
+                login.login();
+            }
+            catch (LoginException e) {
+                exception = e;
+                return false;
+            }
+            return true;
+        }
+
+        protected void onPostExecute(Boolean result) {
+            if (!result && exception != null ) {
+                Context context = getApplicationContext();
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context,exception.getMessage(),duration);
+                toast.show();
+            }
+        }
+    } 
+           
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -78,7 +74,7 @@ public class UTORDroid extends Activity
         CheckBox savePassword = (CheckBox)findViewById(R.id.remember);
 
         //Setup Event Handlers
-        connect.setOnClickListener(new Login(getApplicationContext()));
+        connect.setOnClickListener(connectListener);
 
         // Restore saved preferences        
         SharedPreferences settings = getPreferences(MODE_PRIVATE);
