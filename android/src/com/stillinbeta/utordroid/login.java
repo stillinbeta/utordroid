@@ -16,6 +16,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
+import java.lang.StringBuffer;
 
 import android.net.http.AndroidHttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -52,7 +53,7 @@ class Login extends DefaultHandler {
         this.password = password;
     }
 
-    public void login() throws LoginException {
+    public boolean login() throws LoginException {
         
         // Follow the Redirect to get the Actual URL
         String redirect;
@@ -138,14 +139,24 @@ class Login extends DefaultHandler {
             Log.e(TAG,"Problem transmitting login data",e);
             throw new LoginException("Error Sending Login Information");
         }
-        Log.d(TAG,"Login information posted successfully");
-        try {
-            readInputStream(entity.getContent());
-        } 
-        catch (Exception e) {};
-    } 
+        SaxParseResponse spr = new SaxParseResponse();
+        xr.setContentHandler(spr);
+        xr.setErrorHandler(spr);   
 
-    private class SaxParseForm extends DefaultHandler{
+        try {
+            xr.parse(new InputSource(entity.getContent()));
+        }
+        catch (Exception e) {
+            Log.e(TAG,"Could not parse response page",e);
+            throw new LoginException("Could not understand response!");
+        }
+        Log.d(TAG,"Response parsed.");
+
+        return spr.getIsLoggedIn();
+    }
+    
+
+    private class SaxParseForm extends DefaultHandler {
         private boolean inForm;
         private boolean formParsed;
         
@@ -173,6 +184,42 @@ class Login extends DefaultHandler {
         }
     }
 
+    private class SaxParseResponse extends DefaultHandler {
+        private boolean inHeader;
+        private boolean isLoggedIn;
+        private StringBuffer text;
+        
+        public SaxParseResponse() {
+            this.inHeader = false;
+            this.isLoggedIn = false;
+            this.text = new StringBuffer();
+        }
+        public void startElement (String uri, String name,
+                          String qName, Attributes atts) {
+            if(name.equals("h2")) {
+               // text.clear();
+                this.inHeader = true;
+                Log.d(TAG,"We are logged in!");
+            }
+        }
+        public void characters (char ch[], int start, int length) {
+            text.append(ch, start, length);
+        }
+
+        public void endElement (String uri, String name, String qName) {
+            if(this.inHeader) {
+                this.inHeader = false;
+                if (text.toString().equals("UTORcwn Authentication")) {
+                    this.isLoggedIn = true;
+                }
+            }
+        }
+
+        public boolean getIsLoggedIn() {
+            return this.isLoggedIn;
+        }
+    }
+
     // Very useful for debugging
     public static void readInputStream(InputStream stream) {
         try {
@@ -187,6 +234,4 @@ class Login extends DefaultHandler {
            Log.e(TAG,"Error reading stream",e);
         }
     }
-
-        
 }

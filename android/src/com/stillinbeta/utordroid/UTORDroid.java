@@ -42,13 +42,12 @@ public class UTORDroid extends Activity
         protected Boolean doInBackground(String... params) {
             Login login = new Login(params[0], params[1]);
             try {
-                login.login();
+                return login.login();
             }
             catch (LoginException e) {
                 exception = e;
                 return false;
             }
-            return true;
         }
 
         protected void onPostExecute(Boolean result) {
