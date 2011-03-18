@@ -197,20 +197,25 @@ class Login extends DefaultHandler {
         public void startElement (String uri, String name,
                           String qName, Attributes atts) {
             if(name.equals("h2")) {
-               // text.clear();
+               text.setLength(0); //Clear out the buffer
                 this.inHeader = true;
-                Log.d(TAG,"We are logged in!");
             }
         }
         public void characters (char ch[], int start, int length) {
-            text.append(ch, start, length);
+            if (this.inHeader) {
+                text.append(ch, start, length);
+            }
         }
 
         public void endElement (String uri, String name, String qName) {
-            if(this.inHeader) {
+            if(this.inHeader) { //Check if we're done with the header
                 this.inHeader = false;
                 if (text.toString().equals("UTORcwn Authentication")) {
                     this.isLoggedIn = true;
+                    Log.d(TAG,"We are logged in!");
+                }
+                else {
+                    Log.d(TAG,text.toString());
                 }
             }
         }

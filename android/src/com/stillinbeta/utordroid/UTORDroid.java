@@ -51,11 +51,24 @@ public class UTORDroid extends Activity
         }
 
         protected void onPostExecute(Boolean result) {
-            if (!result && exception != null ) {
-                Context context = getApplicationContext();
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast = Toast.makeText(context,exception.getMessage(),duration);
-                toast.show();
+            Context context = getApplicationContext();
+            int duration = Toast.LENGTH_SHORT;
+            if (!result) {
+                if ( exception != null ) {
+                    Toast toast = Toast.makeText(context,exception.getMessage(),duration);
+                    toast.show();
+                }
+                else {
+                    Toast toast = Toast.makeText(context,
+                        getString(R.string.login_failure), duration);
+                    toast.show();
+                }
+            }
+            else {
+                 Toast toast = Toast.makeText(context,
+                    getString(R.string.login_success),duration); 
+                 toast.show();
+                 finish(); //Our work here is done
             }
         }
     } 
@@ -90,19 +103,6 @@ public class UTORDroid extends Activity
     }
 
     public void onPause() {
-        super.onPause();
-
-        // If we aren't saving passwords, clear the password on lost focus
-        CheckBox savePassword = (CheckBox)findViewById(R.id.remember);
-        EditText passwordField = (EditText)findViewById(R.id.password);
-
-        if (!savePassword.isChecked()) {
-            passwordField.setText("");
-        }
-
-    }
-
-    public void onStop() {
         super.onStop();
 
         EditText usernameField = (EditText)findViewById(R.id.username);
@@ -120,6 +120,7 @@ public class UTORDroid extends Activity
         else {
             //Override an old string if we no longer want a saved password
             editor.putString("password","");
+            passwordField.setText(""); //Clear the password from the text field
         }
 
         editor.commit();

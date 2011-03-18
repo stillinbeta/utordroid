@@ -3,4 +3,6 @@
     <string name="app_name">UTORDroid</string>
     <string name="connect">Connect</string>
     <string name="remember_pass">Remember Password</string>
+    <string name="login_failure">Wrong username or password!</string>
+    <string name="login_success">Successfully Logged in!</string>
 </resources>
