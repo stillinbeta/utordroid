@@ -2,6 +2,7 @@ package com.stillinbeta.utordroid;
 
 import android.app.Activity;
 import android.os.Bundle;
+
 import android.content.Context;
 import android.widget.EditText;
 import android.widget.CheckBox;
@@ -12,20 +13,16 @@ import android.view.View.OnClickListener;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import org.xml.sax.SAXException;
+
 import com.stillinbeta.utordroid.Login;
 import com.stillinbeta.utordroid.Login.LoginException;
 
 public class UTORDroid extends Activity {
 
-    private ProgressDialog dialog;
+    private ProgressDialog dialog; //Stores the dialog box to close it later
 
     private OnClickListener connectListener = new OnClickListener() {
         public void onClick(View v) {
-            Context context = getApplicationContext();
-            int duration = Toast.LENGTH_SHORT;
             EditText usernameField = (EditText)findViewById(R.id.username);
             EditText passwordField = (EditText)findViewById(R.id.password);
 
@@ -39,10 +36,17 @@ public class UTORDroid extends Activity {
         }
     }; 
     
+    //Asynchronous wrapper over the Login class
     private class LoginTask extends AsyncTask<String, Void, Boolean> {
 
-        private LoginException exception;
-
+        //Stores the exception to display to user
+        private LoginException exception; 
+        
+        /** 
+         * Calls Login to try to log in
+         @param params Ought to be username, password
+         @return true on success, false on failure
+         */
         protected Boolean doInBackground(String... params) {
             Login login = new Login(params[0], params[1]);
             try {
@@ -53,7 +57,11 @@ public class UTORDroid extends Activity {
                 return false;
             }
         }
-
+        /**
+         * Called after execution
+         * Closes dialog box and displays helpful messages
+         @param result the result of doInBackground
+         */
         protected void onPostExecute(Boolean result) {
             if (dialog != null) {
                 dialog.dismiss();
@@ -64,16 +72,19 @@ public class UTORDroid extends Activity {
             int duration = Toast.LENGTH_SHORT;
             if (!result) {
                 if ( exception != null ) {
-                    Toast toast = Toast.makeText(context,exception.getMessage(),duration);
+                    Toast toast = Toast.makeText(context,
+                    exception.getMessage(),duration);
                     toast.show();
                 }
                 else {
+                    // If there's no error, then user/pass was wrong
                     Toast toast = Toast.makeText(context,
                         getString(R.string.login_failure), duration);
                     toast.show();
                 }
             }
             else {
+                //We're in.
                  Toast toast = Toast.makeText(context,
                     getString(R.string.login_success),duration); 
                  toast.show();
@@ -82,13 +93,17 @@ public class UTORDroid extends Activity {
         }
     } 
            
-    /** Called when the activity is first created. */
+    /** Called when the activity is first created. 
+     * Main UI thread. Retrieves stored values, adds listeners
+     @param savedInstanceState Data from before
+     */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+    
+        // Acquire all the UI elements
         Button connect = (Button)findViewById(R.id.connect);        
         EditText usernameField = (EditText)findViewById(R.id.username);
         EditText passwordField = (EditText)findViewById(R.id.password);
@@ -110,17 +125,21 @@ public class UTORDroid extends Activity {
         }
         
     }
-
+    /**
+     * Called on application pause.
+     * Saves user data and clears password if need be.
+     */
     public void onPause() {
         super.onStop();
 
+        // Acquire Fields
         EditText usernameField = (EditText)findViewById(R.id.username);
         EditText passwordField = (EditText)findViewById(R.id.password);
         CheckBox savePassword = (CheckBox)findViewById(R.id.remember);
         
+        // Save preferences
         SharedPreferences settings = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        
         editor.putString("username",usernameField.getText().toString());
         // only save password if we've been asked to.
         if (savePassword.isChecked()) {
@@ -131,7 +150,8 @@ public class UTORDroid extends Activity {
             editor.putString("password","");
             passwordField.setText(""); //Clear the password from the text field
         }
-
+        
+        //Save changes and we're done
         editor.commit();
     }
 }
