@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import java.io.IOException;
@@ -17,8 +18,9 @@ import org.xml.sax.SAXException;
 import com.stillinbeta.utordroid.Login;
 import com.stillinbeta.utordroid.Login.LoginException;
 
-public class UTORDroid extends Activity
-{
+public class UTORDroid extends Activity {
+
+    private ProgressDialog dialog;
 
     private OnClickListener connectListener = new OnClickListener() {
         public void onClick(View v) {
@@ -32,6 +34,8 @@ public class UTORDroid extends Activity
 
             new LoginTask().execute(username,password);
 
+            dialog = ProgressDialog.show(UTORDroid.this,"",
+                getString(R.string.working));
         }
     }; 
     
@@ -51,6 +55,11 @@ public class UTORDroid extends Activity
         }
 
         protected void onPostExecute(Boolean result) {
+            if (dialog != null) {
+                dialog.dismiss();
+            }
+
+            // Display error message, or success message and close
             Context context = getApplicationContext();
             int duration = Toast.LENGTH_SHORT;
             if (!result) {

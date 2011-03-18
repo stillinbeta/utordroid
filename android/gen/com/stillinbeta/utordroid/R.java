@@ -29,5 +29,6 @@ public final class R {
         public static final int login_failure=0x7f040003;
         public static final int login_success=0x7f040004;
         public static final int remember_pass=0x7f040002;
+        public static final int working=0x7f040005;
     }
 }

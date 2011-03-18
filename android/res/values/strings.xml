@@ -5,4 +5,5 @@
     <string name="remember_pass">Remember Password</string>
     <string name="login_failure">Wrong username or password!</string>
     <string name="login_success">Successfully Logged in!</string>
+    <string name="working">Working...</string>
 </resources>
