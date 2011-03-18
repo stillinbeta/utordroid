@@ -42,7 +42,6 @@ class Login extends DefaultHandler {
 
     
     public Login(String username, String password) {
-        Log.i(TAG,username+":"+password);
         this.inForm = false;
         this.formParsed = false;
         this.fields = new HashMap<String,String>();
@@ -150,6 +149,7 @@ class Login extends DefaultHandler {
         catch (Exception e) {
            Log.e(TAG,"Error",e);
         } */
+
     } 
 
     public void addField(String k, String v) {
