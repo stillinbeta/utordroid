@@ -17,7 +17,7 @@ import android.os.AsyncTask;
 import com.stillinbeta.utordroid.Login;
 import com.stillinbeta.utordroid.Login.LoginException;
 
-public class UTORDroid extends Activity {
+public class UTORdroid extends Activity {
 
     private ProgressDialog dialog; //Stores the dialog box to close it later
 
@@ -31,7 +31,7 @@ public class UTORDroid extends Activity {
 
             new LoginTask().execute(username,password);
 
-            dialog = ProgressDialog.show(UTORDroid.this,"",
+            dialog = ProgressDialog.show(UTORdroid.this,"",
                 getString(R.string.working));
         }
     }; 
@@ -48,7 +48,7 @@ public class UTORDroid extends Activity {
          @return true on success, false on failure
          */
         protected Boolean doInBackground(String... params) {
-            Login login = new Login(params[0], params[1],UTORDroid.this);
+            Login login = new Login(params[0], params[1],UTORdroid.this);
             try {
                 return login.login();
             }
