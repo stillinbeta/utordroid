@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">UTORDroid</string>
+    <string name="app_name">UTORdroid</string>
     <string name="connect">Connect</string>
     <string name="remember_pass">Remember Password</string>
     <string name="login_failure">Wrong username or password!</string>
