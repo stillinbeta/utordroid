@@ -143,7 +143,6 @@ class Login {
                 context.getString(R.string.login_error_parse));
         } 
         Log.d(TAG,"Prepared response");
-        Log.i(TAG,nameValPairs.toString());
 
        // Send the response 
         try {

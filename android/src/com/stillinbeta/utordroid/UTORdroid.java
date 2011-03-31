@@ -88,6 +88,7 @@ public class UTORdroid extends Activity {
                  Toast toast = Toast.makeText(context,
                     getString(R.string.login_success),duration); 
                  toast.show();
+                 saveUserData();
                  finish(); //Our work here is done
             }
         }
@@ -153,15 +154,4 @@ public class UTORdroid extends Activity {
         //Save changes and we're done
         editor.commit();
     }
-
-    public void onPause() {
-        super.onPause();
-        saveUserData();
-    }
-
-    public void onStop() {
-        super.onStop();
-        saveUserData();
-    }
-
 }
